@@ -48,6 +48,8 @@ const int frameMax = 9984;
 const int frameMin = 7680;
 const int OriginalRange = frameMax - frameMin;
 const int intervalSize = OriginalRange / 256;
+QString directory;
+bool coolingFlag = true;
 
 void MainWindow::updateImage(unsigned short *data, int minValue, int maxValue){
     // Record the raw data and min/max values
@@ -70,20 +72,25 @@ void MainWindow::updateImage(unsigned short *data, int minValue, int maxValue){
 	    rgbImage.setPixel(x, y, qRgb(colormap[3*index], colormap[3*index+1], colormap[3*index+2]));
         }
     }
-
-    // Update the on-screen image
+	
+	// Update the on-screen image
     QPixmap pixmap = QPixmap::fromImage(rgbImage).scaled(ImageWidth, ImageHeight, Qt::KeepAspectRatio);
     QPainter painter(&pixmap);
     // ... mark up pixmap, if so desired
     imageLabel->setPixmap(pixmap);
 
     // Recording Threshold
-    if (maxValue > saveThreshold && maxValue >= oldMaxValue) {
-	++runCount;
-	QString directory = QString("/home/pi/Raw/Run%1/").arg(runCount);
-        saveSnapshot(directory);
-    }
-    oldMaxValue = maxValue;
+    if (maxValue >= saveThreshold) {
+		if (maxValue >= oldMaxValue) {
+			QString directory = QString("/home/pi/Raw/Run%1/").arg(runCount);
+			saveSnapshot(directory);
+			coolingFlag = true;
+		} else if (coolingFlag == true) {
+			coolingFlag = false;
+			++runCount;
+		}
+		oldMaxValue = maxValue;
+	}
 }
 
 void MainWindow::saveSnapshot(QString directory) {
