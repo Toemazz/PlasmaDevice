@@ -1,3 +1,6 @@
+// Engineer: Thomas Reaney
+// College: National University of Ireland Galway
+// Date: 20/02/2017
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -8,12 +11,14 @@ class QLabel;
 class LeptonThread;
 class QGridLayout;
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
     enum { ImageWidth = 320, ImageHeight = 240 };
 
     static int snapshotCount;
+	static int runCount;
 
     QLabel *imageLabel;
     LeptonThread *thread;
@@ -31,4 +36,4 @@ public slots:
     void updateImage(unsigned short *, int, int);
 };
 
-#endif // MAINWINDOW_H
+#endif

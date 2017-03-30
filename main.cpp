@@ -1,14 +1,17 @@
+// Engineer: Thomas Reaney
+// College: National University of Ireland Galway
+// Date: 20/02/2017
 #include <QApplication>
-
 #include "mainwindow.h"
 
-int main( int argc, char **argv )
+// Method: Used to run the plasma device application
+int main(int argc, char **argv)
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 	
     MainWindow *mainWindow = new MainWindow();
-    mainWindow->show();
+    mainWindow -> show();
 
-	return a.exec();
+	return app.exec();
 }
 

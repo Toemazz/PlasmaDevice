@@ -1,22 +1,28 @@
+// Engineer: Thomas Reaney
+// College: National University of Ireland Galway
+// Date: 20/02/2017
 #include "LeptonThread.h"
-
 #include <QString>
 #include <QTextStream>
 
 LeptonThread::LeptonThread()
     : QThread()
     , result(RowPacketBytes*FrameHeight)
-    , rawData(FrameWords) { }
+    , rawData(FrameWords) {}
 
-LeptonThread::~LeptonThread() { }
+LeptonThread::~LeptonThread() {}
 
-const char *LeptonThread::device = "/dev/spidev0.0"; // Change to 0.1 if necessary!
+// Define the parameters for the LeptonThread
+const char *LeptonThread::device = "/dev/spidev0.0";
 unsigned char LeptonThread::mode = 0, LeptonThread::bits = 8;
 unsigned int LeptonThread::speed = 16000000;
 unsigned short LeptonThread::delay = 0;
 QVector<unsigned char> LeptonThread::tx(LeptonThread::RowPacketBytes, 0);
 
-bool LeptonThread::initLepton() {
+
+// Method: Used to initialize the LeptonThread
+bool LeptonThread::initLepton()
+{
     fd = open(device, O_RDWR);
     if (fd < 0)
         qDebug() << "Can't open device";
@@ -37,12 +43,18 @@ bool LeptonThread::initLepton() {
     return false;
 }
 
-int LeptonThread::getPacket(int iRow, unsigned char *packetData) {
+
+// Method: Used to get a packet of data over SPI
+int LeptonThread::getPacket(int iRow, unsigned char *packetData)
+{
     _tr.rx_buf = (unsigned long) packetData;
     return ioctl(fd, SPI_IOC_MESSAGE(1), &_tr);
 }
 
-void LeptonThread::run() {    
+
+// Method: Used to run LeptonThread
+void LeptonThread::run()
+{    
     if (!initLepton()) return;
 
     usleep(250000);
@@ -53,40 +65,50 @@ void LeptonThread::run() {
     _tr.speed_hz = speed;
     _tr.bits_per_word = bits;
 
-    int resets = 0; // Number of times we've reset the 0...59 loop for packets
-    int errors = 0; // Number of error-packets received
-    while (true) {
+	// Initialize the number of error packets received and the number of resets
+    int resets = 0;
+    int errors = 0;
+	
+    while (true)
+	{
         int iRow;
-        for (iRow = 0; iRow < FrameHeight; ) {
+        for (iRow=0; iRow<FrameHeight;)
+		{
             unsigned char *packet = &result[iRow*RowPacketBytes];
 
-            if (getPacket(iRow, packet) < 1) {
+            if (getPacket(iRow, packet) < 1)
+			{
                 qDebug() << "Error transferring SPI packet";
                 return;
             }
 
             int packetNumber;
-            if ((packet[0] & 0xf)==0xf)
+			
+            if ((packet[0] & 0xf) == 0xf) {
                 packetNumber = -1;
-            else
+            } else {
                 packetNumber = packet[1];
+			}
 
-            if (packetNumber==-1) {
+            if (packetNumber == -1)
+			{
                 usleep(1000);
                 if (++errors > 300) break;
                 continue;
             }
 
-            if (packetNumber != iRow) {
+            if (packetNumber != iRow)
+			{
                 usleep(1000);
                 break;
             }
-
             ++iRow;
         }
 
-        if (iRow < FrameHeight) {
-            if (++resets >= 750) {
+        if (iRow < FrameHeight)
+		{
+            if (++resets >= 750)
+			{
                 qDebug() << "Packet reset counter hit 750";
                 resets = 0;
                 usleep(750000);
@@ -94,25 +116,33 @@ void LeptonThread::run() {
             continue;
         }
 
-        resets = 0; errors = 0;
+        resets = 0;
+		errors = 0;
 
         uint16_t minValue = 65535;
         uint16_t maxValue = 0;
+		
         unsigned char *in = &result[0];
         unsigned short *out = &rawData[0];
-        for (int iRow = 0; iRow < FrameHeight; ++iRow) {
+		
+		// Convert unsigned char[] to unsigned short[]
+        for (int iRow=0; iRow<FrameHeight; ++iRow) 
+		{
             in += 4;
-            for (int iCol = 0; iCol < FrameWidth; ++iCol) {
+			
+            for (int iCol=0; iCol<FrameWidth; ++iCol)
+			{
                 unsigned short value = in[0];
                 value <<= 8;
                 value |= in[1];
                 in += 2;
+				
                 if (value > maxValue) maxValue = value;
                 if (value < minValue) minValue = value;
+				
                 *(out++) = value;
             }
         }
-
         emit updateImage(&rawData[0], minValue, maxValue);
     }
 }

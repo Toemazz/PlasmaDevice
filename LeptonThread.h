@@ -1,3 +1,6 @@
+// Engineer: Thomas Reaney
+// College: National University of Ireland Galway
+// Date: 20/02/2017
 #ifndef LEPTONTHREAD
 #define LEPTONTHREAD
 
@@ -15,7 +18,8 @@
 #include <QVector>
 
 
-class LeptonThread : public QThread {
+class LeptonThread : public QThread
+{
     Q_OBJECT
 
     QVector<unsigned char> result;
@@ -34,7 +38,8 @@ class LeptonThread : public QThread {
     int getPacket(int iRow, unsigned char *packetData);
 
 public:
-    enum {
+    enum
+	{
         FrameWidth = 80,
         FrameHeight = 60,
         RowPacketWords = FrameWidth + 2,
