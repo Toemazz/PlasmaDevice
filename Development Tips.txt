@@ -1,0 +1,12 @@
+1. Copy image on SD Card provided for future iterations of the Plasma Pallet.
+
+2. If no video is being transmitted, change the device name to "/dev/spidev0.0"/"/dev/spidev0.1" in LeptonThread.cpp
+
+3. The executable bash script is called on the Raspbian GUI start up ( https://www.raspberrypi.org/forums/viewtopic.php?f=31&t=43509 )
+
+4. To adjust the min/max values of the colour map, change the variables frameMin/frameMax in mainwindow.cpp (ensure both values are a multiple of 256)
+
+
+
+Any Questions/Queries:
+Email: thomas@reaney.net

@@ -16,7 +16,7 @@ int MainWindow::snapshotCount = 0;
 int MainWindow::runCount = 0;
 // Used for applying a fixed colour map to images
 const int frameMax = 9984;
-const int frameMin = 7680;
+const int frameMin = 8448;
 const int OriginalRange = frameMax - frameMin;
 const int intervalSize = OriginalRange / 256;
 // Used for deciding when the images needed to be saved
